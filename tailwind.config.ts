@@ -25,11 +25,11 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         medical: {
-          white: "rgb(240, 240, 245)",
-          charcoal: "rgb(44, 51, 51)",
-          mint: "rgb(82, 196, 176)",
-          red: "rgb(235, 87, 87)",
-          green: "rgb(111, 207, 151)",
+          white: "#F5F5F5",      // Light gray-white
+          charcoal: "#2D2D2D",   // Dark gray, almost black
+          mint: "#E0E0E0",       // Light gray
+          red: "#8B0000",        // Dark red
+          green: "#006400",      // Dark green
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
