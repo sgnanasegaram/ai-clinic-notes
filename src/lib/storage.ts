@@ -15,14 +15,20 @@ export const anonymizeText = (text: string): string => {
 // Store recording in IndexedDB (temporary storage)
 export const storeRecording = async (audioBlob: Blob): Promise<string> => {
   const id = uuidv4();
-  // In a real implementation, this would be encrypted and stored securely
-  // For demo purposes, we're using IndexedDB
   const db = await openDB();
-  const tx = db.transaction('recordings', 'readwrite');
-  const store = tx.objectStore('recordings');
-  await store.put(audioBlob, id);
-  await tx.done;
-  return id;
+  
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('recordings', 'readwrite');
+    const store = tx.objectStore('recordings');
+    
+    const request = store.put(audioBlob, id);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(id);
+    
+    tx.oncomplete = () => db.close();
+    tx.onerror = () => reject(tx.error);
+  });
 };
 
 // Store clinical note in IndexedDB (temporary storage)
@@ -30,11 +36,19 @@ export const storeClinicalNote = async (note: string): Promise<string> => {
   const id = uuidv4();
   const anonymizedNote = anonymizeText(note);
   const db = await openDB();
-  const tx = db.transaction('notes', 'readwrite');
-  const store = tx.objectStore('notes');
-  await store.put(anonymizedNote, id);
-  await tx.done;
-  return id;
+  
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('notes', 'readwrite');
+    const store = tx.objectStore('notes');
+    
+    const request = store.put(anonymizedNote, id);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(id);
+    
+    tx.oncomplete = () => db.close();
+    tx.onerror = () => reject(tx.error);
+  });
 };
 
 // Initialize IndexedDB
