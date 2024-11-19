@@ -19,7 +19,9 @@ export const storeRecording = async (audioBlob: Blob): Promise<string> => {
   // For demo purposes, we're using IndexedDB
   const db = await openDB();
   const tx = db.transaction('recordings', 'readwrite');
-  await tx.store.put(audioBlob, id);
+  const store = tx.objectStore('recordings');
+  await store.put(audioBlob, id);
+  await tx.done;
   return id;
 };
 
@@ -29,7 +31,9 @@ export const storeClinicalNote = async (note: string): Promise<string> => {
   const anonymizedNote = anonymizeText(note);
   const db = await openDB();
   const tx = db.transaction('notes', 'readwrite');
-  await tx.store.put(anonymizedNote, id);
+  const store = tx.objectStore('notes');
+  await store.put(anonymizedNote, id);
+  await tx.done;
   return id;
 };
 
@@ -43,8 +47,12 @@ const openDB = async () => {
     
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      db.createObjectStore('recordings');
-      db.createObjectStore('notes');
+      if (!db.objectStoreNames.contains('recordings')) {
+        db.createObjectStore('recordings');
+      }
+      if (!db.objectStoreNames.contains('notes')) {
+        db.createObjectStore('notes');
+      }
     };
   });
 };
